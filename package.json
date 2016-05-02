@@ -1,13 +1,16 @@
 {
   "name": "automation-syntax",
   "theme": "syntax",
-  "version": "0.0.0",
-  "description": "A short description of your syntax theme",
+  "version": "0.1.0",
+  "author": {
+    "name": "Jan Verrept"
+  },
+  "description": "Syntax theme for inhouse automation applications.",
   "keywords": [
     "syntax",
     "theme"
   ],
-  "repository": "https://github.com/atom/automation-syntax",
+  "repository": "https://github.com/TheMisfit68/automation-syntax.git",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
