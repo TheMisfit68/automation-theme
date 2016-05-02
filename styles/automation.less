@@ -1,0 +1,46 @@
+.comment {
+  color: @syntax-text-color;
+}
+
+
+.constant {
+  color: @green;
+
+  &.character.semicolon {
+    color: @dark-gray;
+  }
+
+  &.numeric {
+    color: @green;
+  }
+}
+
+
+.variable {
+  color: @blue;
+}
+
+
+.string {
+  color: @green;
+}
+
+
+
+.keyword {
+  color: @orange;
+
+  &.control {
+    color: @orange;
+  }
+
+  &.operator.boolean {
+    color: @syntax-text-color;
+  }
+
+  &.operator.comparison {
+    color: @syntax-text-color;
+  }
+
+
+}
