@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<STExchangeFile>
+	<fileHeader company="Schneider Automation" product="Unity Pro L V11.0 - 151207" dateTime="date_and_time#2016-4-28-8:47:24" content="Structured source file" DTDVersion="41"></fileHeader>
+	<contentHeader name="Dentergem KP 0349" version="0.0.762" dateTime="date_and_time#2016-4-19-12:7:30"></contentHeader>
+	<program>
+		<identProgram name="Sys_8411" type="section" task="MAST">
+			<comment>Algemne bewakingen PLC1</comment>
+		</identProgram>
+		<STSource>(*&lt;=== Algemene detecties en bewakingen SYS-8411 V3.1 ========================================&gt;*)
+
+(*--- LINK NAAR SUPERVISIE--------------------------------------------------------------------&gt;*)
+Xabkre:=%MW4780.0;
+
+(*&lt;---Ingangen--------------------------------------------------------------------------------&gt;*)
+(*---Ingangen storingen*)
+(*Automaten*)
+Xas10:=%I1.01.02;(*Bewaking 24VDC*)
+Xas11:=%I1.00.00;(*Hoofdschakelaar RWZI*)
+Xas12:=%I1.00.11;(*Automaat tracing roostergoedpers*)
+Xas13:=%I1.00.15;(*Automaat tracing slibbuffer en indikker*)
+Xas14:=%I1.00.18;(*Automaat primair struurstroomtransfo*)
+Xas15:=%I1.00.19;(*Automaat secundair struurstroomtransfo*)
+Xas16:=%I1.00.20;(*Automaat primair instrumentatie*)
+Xas17:=%I1.00.21;(*Automaat secundair instrumentatie*)
+Xas18:=%I1.01.00;(*Automaat voeding UPS*)
+Xas19:=%I1.00.07;(*Automaat condensatorbatterij*)
+Xas20:=%I1.01.09;(*Automaten GNS Mechanische zuivering*)
+Xas21:=%I1.01.11;(*Automaat GNS BB*)
+Xas22:=%I1.00.17;(*Automaat Stopkontakten*)
+Xas23:=%I1.00.22;(*Automaat Verlichting*)
+Xas24:=%I1.00.14;(*Automaat AD slibpompgebouw*)
+Xas25:=%I1.00.16;(*Automaat AD dienstgebouw*)
+Xas26:=%I1.00.05;(*Automaat Overspanningsbeveiliging*)
+Xas27:=%I1.01.01;(*Automaat Ixion*)
+Xas28:=TRUE;(*---Automaat PC en Printer*)
+Xas29:=TRUE;(*---Automaat Modem*)
+Xas30:=TRUE;(*---Automaat telefooncentrale*)
+
+Xas31:=%I1.00.08;(*Storing condensatorbatterij*)
+Xas32:=%I1.01.10; (*GNS Mechanische zuivering*)
+Xas33:=%I1.01.12; (*GNS BB*)
+Xas34:=TRUE;
+Xas35:=TRUE;
+Xas36:=TRUE;
+
+(*Alarmbwaking toegangscontrole*)
+Xas37:=%I1.00.27;(*Toegangscontrole*)
+Xas38:=%I1.00.28;(*Inbraakalarm*)
+Xas39:=%I1.00.10;(*Poort geopend*)
+
+(*---Storingen PLC kaarten*)
+Xas40:=	%I1.00.MOD.ERR OR %I1.01.MOD.ERR OR %I1.02.MOD.ERR OR %I1.03.MOD.ERR OR %I1.04.MOD.ERR OR %I1.05.MOD.ERR OR
+	%I1.06.MOD.ERR OR %I1.07.MOD.ERR OR %I1.08.MOD.ERR OR %I1.09.MOD.ERR OR %I1.10.MOD.ERR OR 
+	%I2.00.MOD.ERR OR %I2.01.MOD.ERR OR %I2.02.MOD.ERR OR %I2.03.MOD.ERR OR %I2.04.MOD.ERR OR %I2.05.MOD.ERR;
+
+(*---Ingangen meldingen*)
+Xam0:=%I1.00.06;(*fasebewaking*)
+Xam1:=%I1.00.04;(*Overspanningsbeveiliging*)
+Xam2:=%I1.00.09;(*Hoge temp condensatorbatterij*)
+Xam3:=%I1.01.03;(*Algemene reset*)
+Xam4:=%I1.01.08;(*Transfo HS Niveau*)
+Xam5:=%I1.01.05;(*Transfo HS hoge druk*)
+Xam6:=%I1.01.06 AND %I1.01.07;(*Transfo HS hoge temp*)
+Xam7:=NOT %I1.00.12; (*Ups in Storing*)
+Xam8:=NOT %I1.00.13; (*Ups in werking*)
+Xam9:=NOT %S67;(*Batterij geheugenkaart leeg*)
+Xam10:=NOT %S68;(*Batterij voeding PLC leeg*)
+Xam11:=NOT(Xc10_ticomm&lt;=0);(*Géén communicatie HQ*)Xam12:=NOT(Xc11_ticomm&lt;=0);(*Géén communicatie Alarmfirma*)
+
+(*--- INITIALISATIE --------------------------------------------------------------------------&gt;*)
+(*---Flankdetektie*)
+Xaflbkre:=Xabkre OR Xam3;
+Xaflreag:=Xareag:=Xam3;
+(*---Reset storingens- en meldingsverzameling*)
+IF RE(Xaflbkre) OR RE(Xaflreag) THEN Xastn11w:=0;Xastn12w:=0;Xastn21w:=0;Xamew:=0;END_IF;
+
+(*&lt;--- AANMAKEN STORINGEN --------------------------------------------------------------------&gt;*)
+(*---Stuurspanning 24Vdc aanwezig*)
+IF NOT Xas10 THEN SET(Xast10);END_IF;
+(*---Fasebewaking*)
+IF Xam0 THEN Xatifr:=Xavtfr;END_IF;
+IF NOT Xast10 AND NOT Xam0 AND NOT Xamf0 AND (Xatifr&gt;0) AND RE(Xdflsec) THEN DEC_INT(Xatifr);END_IF;
+Xamf0:=NOT Xast10 AND NOT Xam0 AND (Xatifr&lt;=0);
+(*---Algemene hoofdschakelaar RWZI*)
+IF NOT Xamf0 AND NOT Xast10 AND NOT Xas11 THEN SET(Xast11);END_IF;
+(*---Storing spanning hulpbit*)
+Xahust:=Xamf0 OR Xast10 OR Xast11;
+
+(*&lt;--- Borden --------------------------------------------------&gt;*)
+
+Xastspa:=False;
+XastspB:=False;
+Xastspc:=False(* Xahust OR Xast12 *);
+Xastspd:=False(* Xahust OR Xast13 *);
+
+
+(*---Scheidingstrafo*)
+(*&lt;--- Stuurspanningen------------------------------------------&gt;*)
+IF NOT Xahust AND NOT Xastspb AND NOT Xas14 THEN SET(Xast14);END_IF;
+IF NOT Xahust AND NOT Xastspb AND NOT Xast14 AND NOT Xas15 THEN SET(Xast15);END_IF;
+(*---Automaat instrumentatie*)
+IF NOT Xahust AND NOT Xastspb AND NOT Xas16 THEN SET(Xast16);END_IF;
+IF NOT Xahust AND NOT Xastspb AND NOT Xast16 AND NOT Xas17 THEN SET(Xast17);END_IF;
+(*---Storing stuurspanning motoren*)
+Xastspwt:=Xahust OR Xast14 OR Xast15;
+(*---Storing spanning instrumentatie metingen*)
+Xastspmt:=Xahust OR Xast16 OR Xast17;
+(*---Storing spanning vlotters*)
+Xastspvl:=Xahust OR False OR False;
+
+(*&lt;--- Algemeen-------------------------------------------------&gt;*)
+(*---Automaten Tracings*)
+IF NOT Xahust AND NOT Xastspb AND NOT Xas12 THEN SET(Xast12);END_IF;
+IF NOT Xahust AND NOT Xastspb AND NOT Xas13 THEN SET(Xast13);END_IF;
+(*---Automaat UPS*)
+IF NOT Xahust AND NOT Xastspb AND NOT Xas18 THEN SET(Xast18);END_IF;
+(*---Automaat condensatorbatterij*)
+IF NOT Xahust AND NOT Xas19 THEN SET(Xast19);END_IF;
+
+(*&lt;---- Automaat (Globale) noodstoppen--------------------------------&gt;*)
+(*---Automaat GNS Mechanische zuivering*)
+IF NOT Xahust AND NOT Xas20 THEN SET(Xast20);END_IF;
+(*---Automaat GNS BB*)
+IF NOT Xahust AND NOT Xas21 THEN SET(Xast21);END_IF;
+
+(*---Automaat Stopkontakten*)
+IF NOT Xahust AND NOT Xas22 THEN SET(Xast22);END_IF;
+(*---Automaat Verlichting*)
+IF NOT Xahust AND NOT Xas23 THEN SET(Xast23);END_IF;
+(*slibpompgebouw*)
+IF NOT Xahust AND NOT Xas24 THEN SET(Xast24);END_IF;
+(*dienstgebouw*)
+IF NOT Xahust AND NOT Xas25 THEN SET(Xast25);END_IF; 
+(*---Automaat Overspanningsbeveiliging*)
+IF NOT Xahust AND NOT Xas26 THEN SET(Xast26);END_IF;
+
+(*---Automaat Ixion*)
+IF NOT Xahust AND NOT Xas27 THEN SET(Xast27);END_IF;
+(*---Automaat PC en Printer*)
+IF NOT Xahust AND NOT Xas28 THEN SET(Xast28);END_IF;
+(*---Automaat Modem*)
+IF NOT Xahust AND NOT Xas29 THEN SET(Xast29);END_IF;
+(*---Automaat telefooncentrale*)
+IF NOT Xahust AND NOT Xas30 THEN SET(Xast30);END_IF;
+
+(*---Storing condensatorbatterij*)
+IF NOT Xahust AND NOT Xast19 AND NOT Xas31 THEN SET(Xast31);END_IF;
+(*---GNS mechanische zuivering*)
+IF NOT Xahust AND NOT Xast20 AND NOT Xas32 THEN SET(Xast32);END_IF;
+(*---GNS BB*)
+IF NOT Xahust AND NOT Xast20 AND NOT Xas33 THEN SET(Xast33);END_IF;
+
+(*---Reserve*)
+RESET(Xast34);
+RESET(Xast35);
+RESET(Xast36);
+
+(*---Inbraakalarmen*)
+IF NOT Xahust AND NOT Xas37 THEN SET(Xast37);END_IF;
+IF NOT Xahust AND NOT Xas38 THEN SET(Xast38);END_IF;
+IF NOT Xahust AND NOT Xas39 THEN SET(Xast39);END_IF;
+
+(*---Storing PLC kaarten*)
+IF NOT Xas40 THEN Xatiplc:=Xavtplc;END_IF;
+IF NOT Xahust AND Xas40 AND(Xatiplc&gt;0)AND RE(Xdflsec) THEN DEC_INT (Xatiplc);END_IF;
+IF NOT Xahust AND Xas40 AND(Xatiplc&lt;=0) THEN SET(Xast40);END_IF;
+
+(*--- AANMAKEN MELDINGEN --------------------------------------------------------------------&gt;*)
+(*---Fasebewaking reeds geîmplmenteerd Storingen*)
+(*---Overspanningsbeveiliging*)
+Xamf1:=NOT Xahust AND NOT Xam1;
+(*---Hoge temp condensatorbatterij*)
+Xamf2:=NOT Xahust AND NOT Xam2;
+(*---Algemene reset*)
+Xamf3:=Xam3;
+(*---Transfo HS Niveau*)
+Xamf4:=NOT Xahust AND NOT Xam4;
+(*---Transfo HS hoge druk*)
+Xamf5:=NOT Xahust AND NOT Xam5;
+(*---Transfo HS hoge temp*)
+Xamf6:=NOT Xahust AND NOT Xam6;
+(*---Ups in Storing*)
+Xamf7:=NOT Xahust AND NOT Xam7;
+(*---Ups in werking*)
+Xamf8:=NOT Xahust AND NOT Xam8;
+(*---Batterij geheugenkaart leeg*)
+Xamf9:=NOT Xahust AND NOT Xam9;
+(*---Batterij voeding PLC leeg*)
+Xamf10:=NOT Xahust AND NOT Xam10;
+(*---Geen communicatie met HQ*)
+Xamf11:=NOT Xahust AND NOT Xam11;
+(*---Geen communicatie met Alarmfirma*)
+Xamf12:=NOT Xahust AND NOT Xam12;
+
+(*---Aanmaken gebufferde meldingen*)
+Xamew:=Xamfw OR Xamew;
+
+(*--- Storings- en meldingsverzameling--------------------------------------------------------&gt;*)
+(*---Storingsverzameling*)
+Xasist:=(Xastn11w&lt;&gt;0) OR (Xastn12w&lt;&gt;0) OR (Xastn21w&lt;&gt;0);
+(*---Meldingsverzameling*)
+Xasime:=(Xamew&lt;&gt;0);
+Xasimf:=(Xamfw&lt;&gt;0);
+(*---Storing- en meldingsverzameling*)
+Xasivz:=Xasist OR Xasime;
+
+(*---SIGNALERINGEN ---------------------------------------------------------------------------&gt;*)
+(*---Signalering reset*)
+Xasiresg:=Xabkre AND Xasivz;
+Xasireok:=NOT Xasiresg AND Xabkre;
+
+(*--- SIGNALERING STATUS----------------------------------------------------------------------&gt;*)
+(*---Storing spanning*)
+Xastsp:=Xahust OR Xastspwt;
+(*---Algemene storing*)
+Xainst:=Xamf1 OR Xastsp OR Xastspb OR Xastspc OR Xastspd OR Xastspmt OR Xastspvl OR
+        Xast12 OR Xast13 OR Xast18 OR Xast19 OR 
+	Xast20 OR Xast21 OR Xast22 OR Xast23 OR Xast24 OR Xast25 OR Xast26 OR Xast27 OR Xast28 OR Xast29 OR 
+	Xast30 OR Xast31 OR Xast32 OR Xast33 OR Xast34 OR Xast35 OR Xast36 OR Xast37 OR Xast38 OR Xast39;
+
+(*---Aansturen storingslamp*)
+%Q3.08.00:=Xainst;
+
+(*--- LINK NAAR SUPERVISIE--------------------------------------------------------------------&gt;*)
+(*---Storingen*)
+%MW4700:3:=%MW4080:3;
+%MW4704:2:=%MW4083:2;
+(*---Status*)
+%MW4730:=%MW4061;
+(*---Signalering*)
+%MW4731:=%MW4060;
+</STSource>
+	</program>
+	<dataBlock>
+		<variables name="Xas16" typeName="BOOL" topologicalAddress="%MW4010.6">
+			<comment>Automaat primair instrumentatie</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast33" typeName="BOOL" topologicalAddress="%MW4081.7">
+			<comment>GNS BB</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xamf0" typeName="BOOL" topologicalAddress="%MW4084.0">
+			<comment>Fasebewaking</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xasireok" typeName="BOOL" topologicalAddress="%MW4060.0">
+			<comment>Reset volledig</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xdflsec" typeName="EBOOL">
+			<comment>Flank seconden puls</comment>
+		</variables>
+		<variables name="Xamf10" typeName="BOOL" topologicalAddress="%MW4084.10">
+			<comment>Batterij voeding PLC leeg</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast15" typeName="BOOL" topologicalAddress="%MW4080.5">
+			<comment>Automaat secundair struurstroomtransfo</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xastspa" typeName="BOOL" topologicalAddress="%MW4050.2">
+			<comment>Storing spanningstoevoer bord A</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xam10" typeName="BOOL" topologicalAddress="%MW4013.10">
+			<comment>Batterij voeding PLC leeg</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xam9" typeName="BOOL" topologicalAddress="%MW4013.9">
+			<comment>Batterij geheugenkaart leeg</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas30" typeName="BOOL" topologicalAddress="%MW4011.4">
+			<comment>Automaat telefooncentrale</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas38" typeName="BOOL" topologicalAddress="%MW4011.12">
+			<comment>Inbraakalarm</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xam1" typeName="BOOL" topologicalAddress="%MW4013.1">
+			<comment>Overspanningsbeveiliging</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xavtplc" typeName="INT" topologicalAddress="%MW4009">
+			<comment>Vertragingstijd storing PLC kaarten</comment>
+			<variableInit value="120"></variableInit>
+		</variables>
+		<variables name="Xastn12w" typeName="INT" topologicalAddress="%MW4081">
+			<comment>Storingswoord 2 niveau 1</comment>
+		</variables>
+		<variables name="Xabkre" typeName="BOOL" topologicalAddress="%MW4000.0">
+			<comment>Reset</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xahust" typeName="BOOL" topologicalAddress="%MW4050.7">
+			<comment>Hulpbit storing spanning</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast22" typeName="BOOL" topologicalAddress="%MW4080.12">
+			<comment>Automaat GNS influent</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas17" typeName="BOOL" topologicalAddress="%MW4010.7">
+			<comment>Automaat secundair instrumentatie</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas21" typeName="BOOL" topologicalAddress="%MW4010.11">
+			<comment>Automaat GNS BB</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xastspvl" typeName="BOOL" topologicalAddress="%MW4050.12">
+			<comment>Storing spanningstoevoer vlotters</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas40" typeName="BOOL" topologicalAddress="%MW4011.14">
+			<comment>Storing PLC kaarten </comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xasiresg" typeName="BOOL" topologicalAddress="%MW4060.1">
+			<comment>Reset onvolledig</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xamf7" typeName="BOOL" topologicalAddress="%MW4084.7">
+			<comment>Ups in Storing</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xastn11w" typeName="INT" topologicalAddress="%MW4080">
+			<comment>Storingswoord 1 niveau 1</comment>
+		</variables>
+		<variables name="Xast12" typeName="BOOL" topologicalAddress="%MW4080.2">
+			<comment>Automaat tracing roostergoedpers</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xamf11" typeName="BOOL" topologicalAddress="%MW4084.11">
+			<comment>Geen communicatie met HQ</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xastspb" typeName="BOOL" topologicalAddress="%MW4050.3">
+			<comment>Storing spanningstoevoer bord B</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xam8" typeName="BOOL" topologicalAddress="%MW4013.8">
+			<comment>Ups in werking</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xastspwt" typeName="BOOL" topologicalAddress="%MW4050.11">
+			<comment>Storing spanningstoevoer werktuigen</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas29" typeName="BOOL" topologicalAddress="%MW4011.3">
+			<comment>Automaat modem</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast34" typeName="BOOL" topologicalAddress="%MW4081.8">
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xam11" typeName="BOOL" topologicalAddress="%MW4013.11">
+			<comment>Géén communicatie HQ</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xaflbkre" typeName="EBOOL">
+			<comment>Reset</comment>
+		</variables>
+		<variables name="Xatiplc" typeName="INT" topologicalAddress="%MW4049">
+			<comment>Timer storing PLC kaarten</comment>
+		</variables>
+		<variables name="Xas31" typeName="BOOL" topologicalAddress="%MW4011.5">
+			<comment>Storing condensatorbatterij</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas39" typeName="BOOL" topologicalAddress="%mw4011.13">
+			<comment>Poort geopend</comment>
+		</variables>
+		<variables name="Xam0" typeName="BOOL" topologicalAddress="%MW4013.0">
+			<comment>fasebewaking</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xaflreag" typeName="EBOOL">
+			<comment>Algemne reset kast</comment>
+		</variables>
+		<variables name="Xastspmt" typeName="BOOL" topologicalAddress="%MW4050.6">
+			<comment>Storing spanningstoevoer metingen</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast25" typeName="BOOL" topologicalAddress="%MW4080.15">
+			<comment>Automaat AD dienstgebouw</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas14" typeName="BOOL" topologicalAddress="%MW4010.4">
+			<comment>Automaat primair struurstroomtransfo</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xamf6" typeName="BOOL" topologicalAddress="%MW4084.6">
+			<comment>Transfo HS Hoge temperatuur</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xastn21w" typeName="INT" topologicalAddress="%MW4082">
+			<comment>Storingswoord 1 niveau 2</comment>
+		</variables>
+		<variables name="Xas20" typeName="BOOL" topologicalAddress="%MW4010.10">
+			<comment>Automaat GNS Mechanische zuivering</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast13" typeName="BOOL" topologicalAddress="%MW4080.3">
+			<comment>Automaat tracing slibbuffer</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas32" typeName="BOOL" topologicalAddress="%MW4011.6">
+			<comment>Noodstoppen mechanische zuivering</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xastspc" typeName="BOOL" topologicalAddress="%MW4050.4">
+			<comment>Storing spanningstoevoer bord C</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xainst" typeName="BOOL" topologicalAddress="%MW4030.0">
+			<comment>Aansturing storingslamp</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xasimf" typeName="BOOL" topologicalAddress="%MW4061.3">
+			<comment>Meldingsverzameling effectief</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast35" typeName="BOOL" topologicalAddress="%MW4081.9">
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xam12" typeName="BOOL" topologicalAddress="%MW4013.12">
+			<comment>Géén communicatie Alarmfirma</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas28" typeName="BOOL" topologicalAddress="%MW4011.2">
+			<comment>Automaat PC en printer</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xam3" typeName="BOOL" topologicalAddress="%MW4013.3">
+			<comment>Algemene reset</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast10" typeName="BOOL" topologicalAddress="%MW4080.0">
+			<comment>Bewaking 24VDC</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast24" typeName="BOOL" topologicalAddress="%MW4080.14">
+			<comment>Automaat AD slibpompgebouw</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas15" typeName="BOOL" topologicalAddress="%MW4010.5">
+			<comment>Automaat secundair struurstroomtransfo</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas23" typeName="BOOL" topologicalAddress="%MW4010.13">
+			<comment>Automaat Verlichting</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xamf5" typeName="BOOL" topologicalAddress="%MW4084.5">
+			<comment>Transfo HS Druk</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas33" typeName="BOOL" topologicalAddress="%MW4011.7">
+			<comment>GNS BB</comment>
+		</variables>
+		<variables name="Xast18" typeName="BOOL" topologicalAddress="%MW4080.8">
+			<comment>Automaat voeding UPS</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xasime" typeName="BOOL" topologicalAddress="%MW4061.2">
+			<comment>Meldingsverzameling</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast36" typeName="BOOL" topologicalAddress="%MW4081.10">
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xam2" typeName="BOOL" topologicalAddress="%MW4013.2">
+			<comment>Hoge temp condensatorbatterij</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast40" typeName="BOOL" topologicalAddress="%MW4081.14">
+			<comment>Storing PLC kaarten </comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xastspd" typeName="BOOL" topologicalAddress="%MW4050.5">
+			<comment>Storing spanningstoevoer bord D</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xamfw" typeName="INT" topologicalAddress="%MW4084">
+			<comment>Meldingswoord effectief</comment>
+		</variables>
+		<variables name="Xamf4" typeName="BOOL" topologicalAddress="%MW4084.4">
+			<comment>Transfo HS Niveau</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast11" typeName="BOOL" topologicalAddress="%MW4080.1">
+			<comment>Hoofdschakelaar RWZI</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast27" typeName="BOOL" topologicalAddress="%MW4081.1">
+			<comment>GNS Mechnische zuivering</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas22" typeName="BOOL" topologicalAddress="%MW4010.12">
+			<comment>Automaat Stopkontakten</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast19" typeName="BOOL" topologicalAddress="%MW4080.9">
+			<comment>Automaat condensatorbatterij</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas12" typeName="BOOL" topologicalAddress="%MW4010.2">
+			<comment>Automaat tracing roostergoedpers</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas34" typeName="BOOL" topologicalAddress="%MW4011.8"></variables>
+		<variables name="Xast37" typeName="BOOL" topologicalAddress="%MW4081.11">
+			<comment>Automaat toegangscontrole</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xasivz" typeName="BOOL" topologicalAddress="%MW4061.0">
+			<comment>Storing- en meldingsverzameling</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xamew" typeName="INT" topologicalAddress="%MW4083">
+			<comment>Meldingswoord gebufferd</comment>
+		</variables>
+		<variables name="Xasist" typeName="BOOL" topologicalAddress="%MW4061.1">
+			<comment>Storingsverzameling</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas25" typeName="BOOL" topologicalAddress="%MW4010.15">
+			<comment>Automaat AD dienstgebouw</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast26" typeName="BOOL" topologicalAddress="%MW4081.0">
+			<comment>Automaat Overspanningsbeveiliging</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xam5" typeName="BOOL" topologicalAddress="%MW4013.5">
+			<comment>Transfo HS hoge druk</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast30" typeName="BOOL" topologicalAddress="%MW4081.4">
+			<comment>GNS overstortschuif</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas35" typeName="BOOL" topologicalAddress="%MW4011.9"></variables>
+		<variables name="Xamf3" typeName="BOOL" topologicalAddress="%MW4084.3">
+			<comment>Algemene reset</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast16" typeName="BOOL" topologicalAddress="%MW4080.6">
+			<comment>Automaat primair instrumentatie</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas13" typeName="BOOL" topologicalAddress="%MW4010.3">
+			<comment>Automaat tracing slibbuffer</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast38" typeName="BOOL" topologicalAddress="%MW4081.12">
+			<comment>Inbraakalarm</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xc11_ticomm" typeName="INT">
+			<comment>Timer comcontrole Alarmbewakingsfirma</comment>
+			<variableInit value="300"></variableInit>
+		</variables>
+		<variables name="Xam4" typeName="BOOL" topologicalAddress="%MW4013.4">
+			<comment>Transfo HS niveau</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xamf2" typeName="BOOL" topologicalAddress="%MW4084.2">
+			<comment>Hoge temp condensatorbatterij</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast21" typeName="BOOL" topologicalAddress="%MW4080.11">
+			<comment>Automaat GNS BB</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xamf12" typeName="BOOL" topologicalAddress="%MW4084.12">
+			<comment>Geen communicatie met Alarmfirma</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas24" typeName="BOOL" topologicalAddress="%MW4010.14">
+			<comment>Automaat AD slibpompgebouw</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast31" typeName="BOOL" topologicalAddress="%MW4081.5">
+			<comment>Storing condensatorbatterij</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xavtfr" typeName="INT" topologicalAddress="%MW4005">
+			<comment>Vertragingstijd fasebewaking</comment>
+			<variableInit value="0"></variableInit>
+		</variables>
+		<variables name="Xast17" typeName="BOOL" topologicalAddress="%MW4080.7">
+			<comment>Automaat secundair instrumentatie</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas36" typeName="BOOL" topologicalAddress="%MW4011.10"></variables>
+		<variables name="Xast29" typeName="BOOL" topologicalAddress="%MW4081.3">
+			<comment>GNS NBT</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas10" typeName="BOOL" topologicalAddress="%MW4010.0">
+			<comment>Bewaking 24VDC</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas18" typeName="BOOL" topologicalAddress="%MW4010.8">
+			<comment>Automaat voeding UPS</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast39" typeName="BOOL" topologicalAddress="%MW4081.13">
+			<comment>Slot toegangspoort</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xamf9" typeName="BOOL" topologicalAddress="%MW4084.9">
+			<comment>Batterij geheugenkaart leeg</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast20" typeName="BOOL" topologicalAddress="%MW4080.10">
+			<comment>Automaat GNS Mechanische zuivering</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xastsp" typeName="BOOL" topologicalAddress="%MW4050.1">
+			<comment>Storing spanning algemeen</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas27" typeName="BOOL" topologicalAddress="%MW4011.1">
+			<comment>Automaat Ixion</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xam7" typeName="BOOL" topologicalAddress="%MW4013.7">
+			<comment>Ups in Storing</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xatifr" typeName="INT" topologicalAddress="%MW4045">
+			<comment>Timer vertraging fasebewaking</comment>
+		</variables>
+		<variables name="Xas37" typeName="BOOL" topologicalAddress="%MW4011.11">
+			<comment>Automaat toegangscontrole</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xamf1" typeName="BOOL" topologicalAddress="%MW4084.1">
+			<comment>Overspanningsbeveiliging</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast32" typeName="BOOL" topologicalAddress="%MW4081.6">
+			<comment>GNS Mechanische zuivering</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xc10_ticomm" typeName="INT">
+			<comment>Timer comcontrole HQ</comment>
+			<variableInit value="300"></variableInit>
+		</variables>
+		<variables name="Xast14" typeName="BOOL" topologicalAddress="%MW4080.4">
+			<comment>Automaat primair struurstroomtransfo</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xareag" typeName="EBOOL">
+			<comment>Algemene reset</comment>
+		</variables>
+		<variables name="Xas11" typeName="BOOL" topologicalAddress="%MW4010.1">
+			<comment>Hoofdschakelaar RWZI</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast28" typeName="BOOL" topologicalAddress="%MW4081.2">
+			<comment>GNS BB</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas19" typeName="BOOL" topologicalAddress="%MW4010.9">
+			<comment>Automaat condensatorbatterij</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xas26" typeName="BOOL" topologicalAddress="%MW4011.0">
+			<comment>Automaat Overspanningsbeveiliging</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xam6" typeName="BOOL" topologicalAddress="%MW4013.6">
+			<comment>Transfo HS hoge temp</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xamf8" typeName="BOOL" topologicalAddress="%MW4084.8">
+			<comment>Ups in werking</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+		<variables name="Xast23" typeName="BOOL" topologicalAddress="%MW4080.13">
+			<comment>Automaat Verlichting</comment>
+			<attribute name="TimeStampCapability" value="0"></attribute>
+		</variables>
+	</dataBlock>
+</STExchangeFile>
