@@ -5,6 +5,10 @@
   "description": "Syntax theme for inhouse automation applications.",
   "repository": "https://github.com/TheMisfit68/automation-syntax.git",
   "license": "MIT",
+  "keywords": [
+    "syntax",
+    "theme"
+  ],
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
   },
