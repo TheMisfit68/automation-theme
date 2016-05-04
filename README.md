@@ -2,5 +2,5 @@
 
 Syntax theme for inhouse automation applications.
 
-![A screenshot of your theme](./screenshots/GDBscreenshot.png?raw=true)
-![A screenshot of your theme](./screenshots/XSTscreenshot.png?raw=true)
+![gdb example](./screenshots/GDBscreenshot.png?raw=true)
+![xst example](./screenshots/XSTscreenshot.png?raw=true)
