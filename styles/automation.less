@@ -1,44 +1,44 @@
-.comment {
+.syntax--comment {
   color: @syntax-text-color;
 }
 
 
-.constant {
+.syntax--constant {
   color: @green;
 
-  &.character.semicolon {
+  &.syntax--character.syntax--semicolon {
     color: @dark-gray;
   }
 
-  &.numeric {
+  &.syntax--numeric {
     color: @green;
   }
 }
 
 
-.variable {
+.syntax--variable {
   color: @blue;
 }
 
 
-.string {
+.syntax--string {
   color: @green;
 }
 
 
 
-.keyword {
+.syntax--keyword {
   color: @orange;
 
-  &.control {
+  &.syntax--control {
     color: @orange;
   }
 
-  &.operator.boolean {
+  &.syntax--operator.syntax--boolean {
     color: @syntax-text-color;
   }
 
-  &.operator.comparison {
+  &.syntax--operator.syntax--comparison {
     color: @syntax-text-color;
   }
 
