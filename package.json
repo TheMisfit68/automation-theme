@@ -1,9 +1,9 @@
 {
   "name": "automation-syntax",
   "theme": "syntax",
-  "version": "2.5",
+  "version": "2.5.0",
   "description": "Syntax theme for inhouse automation applications.",
-  "repository": "https://github.com/TheMisfit68/automation-syntax.git",
+  "repository": "https://TheMisfit68@github.com/TheMisfit68/automation-syntax.git",
   "license": "MIT",
   "keywords": [
     "syntax",
