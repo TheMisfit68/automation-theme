@@ -1,6 +1,5 @@
-# automation-syntax theme
+# automation-theme README
 
-Syntax theme for inhouse automation applications.
+Companion theme for several grammars used in automation.
 
-![gdb example](./screenshots/GDBscreenshot.png?raw=true)
-![xst example](./screenshots/XSTscreenshot.png?raw=true)
+![Automation Theme](images/automationTheme.png)
