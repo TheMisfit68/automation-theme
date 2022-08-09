@@ -1,16 +1,27 @@
 {
-  "name": "automation-syntax",
-  "theme": "syntax",
-  "version": "2.5.0",
-  "description": "Syntax theme for inhouse automation applications.",
-  "repository": "https://github.com/JBCoolTools/automation-syntax.git",
-  "license": "MIT",
-  "keywords": [
-    "syntax",
-    "theme"
-  ],
-  "engines": {
-    "atom": ">=1.0.0 <3.0.0"
-  },
-  "dependencies": {}
+    "publisher": "TheMisfit68",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/TheMisfit68/automation-theme.git"
+    },
+    "icon": "images/icon.png",
+    "name": "automation-theme",
+    "displayName": "Automation Theme",
+    "description": "Companion theme for several automation grammars",
+    "version": "2.0.0",
+    "engines": {
+        "vscode": "^1.70.0"
+    },
+    "categories": [
+        "Themes"
+    ],
+    "contributes": {
+        "themes": [
+            {
+                "label": "Automation Theme",
+                "uiTheme": "vs-dark",
+                "path": "./themes/Automation Theme-color-theme.json"
+            }
+        ]
+    }
 }
