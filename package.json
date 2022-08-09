@@ -7,7 +7,7 @@
     "icon": "images/icon.png",
     "name": "automation-theme",
     "displayName": "Automation Theme",
-    "description": "Companion theme for several grammars used in automation.",
+    "description": "Companion theme for several VSC grammars used in automation.",
     "version": "2.5.1",
     "engines": {
         "vscode": "^1.70.0"
